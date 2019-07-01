@@ -9,4 +9,4 @@ This works fine except in one case:
 
 The bug: if the user clicks on the back button, it will go back to the previous webpage (or blank page) instead of the previous positions on the map.
 
-To see a full description and reproduce the bug, check this page: [bug-leaflet-chrome](https://francoisromain.github.io/bug-leaflet-chrome).
+To reproduce the bug, check this page: [francoisromain.github.io/bug-leaflet-chrome](https://francoisromain.github.io/bug-leaflet-chrome).

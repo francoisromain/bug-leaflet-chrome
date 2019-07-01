@@ -103,6 +103,16 @@
         console.log("init", centerString, zoom);
         const center = centerString.split(",");
         map.setView(center, zoom);
+      } else {
+        const state = {
+          zoom: map.getZoom(),
+          center: [map.getCenter().lat, map.getCenter().lng]
+        };
+        window.history.replaceState(
+          state,
+          "map",
+          `?zoom=${state.zoom}&center=${state.center}`
+        );
       }
 
       let preventMoveend = false;
