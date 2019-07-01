@@ -14,3 +14,7 @@ What is expected: if the user clicks on the back button, it should go back to th
 ---
 
 To reproduce the bug, check this page: [francoisromain.github.io/bug-leaflet-chrome](https://francoisromain.github.io/bug-leaflet-chrome).
+
+---
+
+[Issue on Github](https://github.com/Leaflet/Leaflet/issues/6712)

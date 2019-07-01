@@ -27,7 +27,13 @@
       Bug with Leaflet in Chrome
     </h1>
     <h2>
-      <a href="https://github.com/francoisromain/bug-leaflet-chrome">Github</a>
+      <a href="https://github.com/francoisromain/bug-leaflet-chrome"
+        >Source code on Github</a
+      >
+      |
+      <a href="https://github.com/Leaflet/Leaflet/issues/6712"
+        >Issue on Github</a
+      >
     </h2>
     <div id="mapid"></div>
     <div>
@@ -75,8 +81,8 @@
         webpage (or blank page).
       </p>
       <p>
-        What is expected: clicks on the back button, should back to the previous
-        positions of the map like in the first example.
+        What is expected: clicks on the back button, should go back to the
+        previous positions of the map like in the first example.
       </p>
       <hr />
       <p>
@@ -84,69 +90,8 @@
         12.1.1.
       </p>
     </div>
-    <script>
-      // define map and layers
-      const map = L.map("mapid").setView([51.505, -0.09], 13);
-      const tileLayer = L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          maxZoom: 20,
-          attribution:
-            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }
-      );
-
-      // get url params on init
-      const urlParams = new URLSearchParams(window.location.search);
-      const centerString = urlParams.get("center");
-      const zoom = urlParams.get("zoom");
-      if (centerString && zoom) {
-        console.log("init", centerString, zoom);
-        const center = centerString.split(",");
-        map.setView(center, zoom);
-      } else {
-        const state = {
-          zoom: map.getZoom(),
-          center: [map.getCenter().lat, map.getCenter().lng]
-        };
-        window.history.replaceState(
-          state,
-          "map",
-          `?zoom=${state.zoom}&center=${state.center}`
-        );
-      }
-
-      let preventMoveend = false;
-
-      // when the user click the back / next button of the browser
-      // sets the position on the map
-      window.onpopstate = function(event) {
-        console.log("setView", event.state.center, event.state.zoom);
-        preventMoveend = true;
-        map.setView(event.state.center, event.state.zoom);
-      };
-
-      tileLayer.addTo(map);
-      map.on("moveend", () => {
-        console.log("moveend", preventMoveend);
-        // if the event is triggered by the back / next button
-        //  - don't update the url
-        // else
-        // - update the url query params with zoom and center
-        if (preventMoveend) {
-          preventMoveend = false;
-        } else {
-          const state = {
-            zoom: map.getZoom(),
-            center: [map.getCenter().lat, map.getCenter().lng]
-          };
-          window.history.pushState(
-            state,
-            "map",
-            `?zoom=${state.zoom}&center=${state.center}`
-          );
-        }
-      });
+    <script src="./scripts.js">
+      
     </script>
   </body>
 </html>
