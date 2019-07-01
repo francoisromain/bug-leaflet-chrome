@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Bug chrome leaflet</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+      integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+      crossorigin=""
+    ></script>
+    <style>
+      #mapid {
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Bug with Leaflet in Chrome</h1>
+    <div id="mapid"></div>
+    <div>
+      <h2>How to reproduce the bug?</h2>
+      <hr />
+      <p><b>First, something that works</b></p>
+      <ol>
+        <li>Open this page in Chrome</li>
+        <li>
+          Interact with the map:
+          <ul>
+            <li>click-and-drag</li>
+            <li>zoom-in or zoom-out with the control-button</li>
+            <li>zoom-in or zoom-out with the mousewheel or trackpad</li>
+          </ul>
+        </li>
+        <li>
+          Repeat the previous step a few times. Be sure to have at least one
+          interaction which is not with the trackpad / mousewheel.
+        </li>
+        <li>Click the back button of the browser.</li>
+      </ol>
+      <p>
+        The map goes back to its previous positions as you click on the back
+        button. Everything is in order.
+      </p>
+      <hr />
+      <p><b>Now, something broken (the bug)</b></p>
+      <ol>
+        <li><b>Reload</b> this page in Chrome.</li>
+        <li>
+          Interact with the map
+          <b>only with the mousewheel or trackpad</b> (zoom-in or zoom-out).
+          Don't click-and-drag, and don't use the zoom control-button. The url
+          updates.
+        </li>
+        <li>
+          Repeat the previous step a few times (Never click-and-drag, and never
+          use the zoom control-button at all).
+        </li>
+        <li>Click the back button of the browser.</li>
+      </ol>
+      <p>
+        The bug: the first click on the back button goes back to the previous
+        webpage (or blank tab).
+      </p>
+      <p>
+        What is expected: clicks on the back button, should back to the previous
+        positions of the map like in the first example.
+      </p>
+      <p>
+        This bug occurs in Chrome 75, but not on Firefox 67.0.4 and Safari
+        12.1.1.
+      </p>
+    </div>
+    <script>
+      // define map and layers
+      const map = L.map("mapid").setView([51.505, -0.09], 13);
+      const tileLayer = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 20,
+          attribution:
+            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }
+      );
+
+      // get url params on init
+      const urlParams = new URLSearchParams(window.location.search);
+      const centerString = urlParams.get("center");
+      const zoom = urlParams.get("zoom");
+      if (centerString && zoom) {
+        console.log("init", centerString, zoom);
+        const center = centerString.split(",");
+        map.setView(center, zoom);
+      }
+
+      let preventMoveend = false;
+
+      // when the user click the back / next button of the browser
+      // sets the position on the map
+      window.onpopstate = function(event) {
+        console.log("setView", event.state.center, event.state.zoom);
+        preventMoveend = true;
+        map.setView(event.state.center, event.state.zoom);
+      };
+
+      tileLayer.addTo(map);
+      map.on("moveend", () => {
+        console.log("moveend", preventMoveend);
+        // if the event is triggered by the back / next button
+        //  - don't update the url
+        // else
+        // - update the url query params with zoom and center
+        if (preventMoveend) {
+          preventMoveend = false;
+        } else {
+          const state = {
+            zoom: map.getZoom(),
+            center: [map.getCenter().lat, map.getCenter().lng]
+          };
+          window.history.pushState(
+            state,
+            "map",
+            `?zoom=${state.zoom}&center=${state.center}`
+          );
+        }
+      });
+    </script>
+  </body>
+</html>
